@@ -9,7 +9,7 @@ const errorHandler = (err, req, res, next) => {
         message: message,
     };
 
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === "development" && err.originalError) {
         response.stack = err.stack;
     }
 

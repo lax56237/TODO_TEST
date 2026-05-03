@@ -1,140 +1,135 @@
 const pool = require("../database/db");
 
-const addTaskService = async ({ title, description, category, completed }) => {
+async function runQuery(query, params, errorMessage) {
     try {
-        const result = await pool.query(
-            "INSERT INTO tasks (title, description, category, completed) VALUES ($1, $2, $3, $4) RETURNING *;",
-            [
-                title.trim(),
-                description || null,
-                category || "other",
-                completed !== undefined ? completed : false,
-            ]
-        );
-
-        return result.rows[0];
-    } catch (error) {
-        const err = new Error("Database error while creating task");
-        err.status = 500;
-        throw err;
+        return await pool.query(query, params);
+    } catch (err) {
+        const error = new Error(errorMessage);
+        error.status = 500;
+        error.originalError = err;
+        throw error;
     }
-};
+}
 
-const getTasksService = async () => {
-    try {
-        const result = await pool.query(
-            "SELECT * FROM tasks ORDER BY id ASC;"
-        );
+async function addTaskService({ title, description, category, completed }) {
+    const result = await runQuery(
+        "INSERT INTO tasks (title, description, category, completed) VALUES ($1, $2, $3, $4) RETURNING *;",
+        [
+            title.trim(),
+            description || null,
+            category || "other",
+            completed !== undefined ? completed : false,
+        ],
+        "Database error while creating task"
+    );
+    return result.rows[0];
+}
 
-        return result.rows;
-    } catch (error) {
-        const err = new Error("Database error while fetching tasks");
-        err.status = 500;
-        throw err;
-    }
-};
+async function getTasksService() {
+    const result = await runQuery(
+        "SELECT * FROM tasks ORDER BY id ASC;",
+        [],
+        "Database error while fetching tasks"
+    );
+    return result.rows;
+}
 
-const deleteTaskService = async (ids) => {
+async function deleteTaskService(ids) {
     const deleted = [];
     const notFound = [];
 
     for (const id of ids) {
-        try {
-            const check = await pool.query(
-                "SELECT id FROM tasks WHERE id = $1;",
-                [id]
-            );
+        const check = await runQuery(
+            "SELECT id FROM tasks WHERE id = $1;",
+            [id],
+            "Database error while checking task existence"
+        );
 
-            if (check.rows.length === 0) {
-                notFound.push(id);
-                continue;
-            }
-
-            await pool.query(
-                "DELETE FROM tasks WHERE id = $1;",
-                [id]
-            );
-
-            deleted.push(id);
-        } catch (error) {
-            throw new Error("Database error while deleting tasks");
+        if (check.rows.length === 0) {
+            notFound.push(id);
+            continue;
         }
+
+        await runQuery(
+            "DELETE FROM tasks WHERE id = $1;",
+            [id],
+            "Database error while deleting task"
+        );
+
+        deleted.push(id);
     }
 
     return { deleted, notFound };
-};
+}
 
-const markTaskService = async (ids) => {
+async function markTaskService(ids) {
     const updated = [];
     const alreadyCompleted = [];
     const notFound = [];
 
     for (const id of ids) {
-        try {
-            const result = await pool.query(
-                "SELECT * FROM tasks WHERE id = $1;",
-                [id]
-            );
+        const result = await runQuery(
+            "SELECT * FROM tasks WHERE id = $1;",
+            [id],
+            "Database error while fetching task"
+        );
 
-            if (result.rows.length === 0) {
-                notFound.push(id);
-                continue;
-            }
-
-            const task = result.rows[0];
-
-            if (task.completed) {
-                alreadyCompleted.push(id);
-                continue;
-            }
-
-            await pool.query(
-                "UPDATE tasks SET completed = true WHERE id = $1;",
-                [id]
-            );
-
-            updated.push(id);
-        } catch (error) {
-            throw new Error("Database error while updating tasks");
+        if (result.rows.length === 0) {
+            notFound.push(id);
+            continue;
         }
+
+        const task = result.rows[0];
+
+        if (task.completed) {
+            alreadyCompleted.push(id);
+            continue;
+        }
+
+        await runQuery(
+            "UPDATE tasks SET completed = true WHERE id = $1;",
+            [id],
+            "Database error while updating task"
+        );
+
+        updated.push(id);
     }
 
     return { updated, alreadyCompleted, notFound };
-};
+}
 
-const editTaskService = async (tasks) => {
+async function editTaskService(tasks) {
     const updated = [];
     const notFound = [];
 
     for (const task of tasks) {
-        try {
-            const check = await pool.query(
-                "SELECT id FROM tasks WHERE id = $1;",
-                [task.id]
-            );
+        const check = await runQuery(
+            "SELECT id FROM tasks WHERE id = $1;",
+            [task.id],
+            "Database error while checking task existence"
+        );
 
-            if (check.rows.length === 0) {
-                notFound.push(task.id);
-                continue;
-            }
-
-            await pool.query(
-                "UPDATE tasks SET title = $1, description = $2, category = $3 WHERE id = $4;",
-                [
-                    task.title,
-                    task.description,
-                    task.category,
-                    task.id,
-                ]
-            );
-
-            updated.push(task.id);
-        } catch (error) {
-            throw new Error("Database error while updating tasks");
+        if (check.rows.length === 0) {
+            notFound.push(task.id);
+            continue;
         }
+
+        await runQuery(
+            "UPDATE tasks SET title = $1, description = $2, category = $3 WHERE id = $4;",
+            [task.title, task.description, task.category, task.id],
+            "Database error while updating task"
+        );
+
+        updated.push(task.id);
     }
 
     return { updated, notFound };
-};
+}
 
-module.exports = { addTaskService, getTasksService, deleteTaskService, markTaskService, editTaskService };
+module.exports = {
+    addTaskService,
+    getTasksService,
+    deleteTaskService,
+    markTaskService,
+    editTaskService,
+};
