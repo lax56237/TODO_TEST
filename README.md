@@ -331,9 +331,10 @@ It serves as a quick way to test the project and as a reference for how to call 
 
 Make sure the server is running (`npm start`), then run:
 
-```bash
+```
 npm run test-api
 
+```
 ---
 
 ### 🔹 Key Highlights
