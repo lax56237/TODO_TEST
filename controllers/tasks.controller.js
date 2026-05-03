@@ -1,12 +1,5 @@
-const {
-    addTaskService,
-    getTasksService,
-    deleteTaskService,
-    markTaskService,
-    editTaskService,
-} = require("../services/tasks.service");
+const { addTaskService, getTasksService, deleteTaskService, markTaskService, editTaskService } = require("../services/tasks.service");
 const asyncHandler = require("../utils/asyncHandler");
-
 
 const addTasks = asyncHandler(async (req, res) => {
     const task = await addTaskService(req.body);
@@ -37,95 +30,100 @@ const getTasks = asyncHandler(async (req, res) => {
 });
 
 const deleteTask = asyncHandler(async (req, res) => {
-    const { id } = req.params;
 
-    if (!id || isNaN(id)) {
-        const err = new Error("Invalid task ID");
+    const { validIds, invalidIds } = req;
+
+    if (validIds.length === 0) {
+        const err = new Error("No valid IDs provided");
         err.status = 400;
         throw err;
     }
-
-    await deleteTaskService(id);
+    const result = await deleteTaskService(validIds);
 
     res.status(200).json({
         success: true,
-        message: "Task deleted successfully",
+        message: "Delete operation completed",
+        deleted: result.deleted,
+        notFound: result.notFound,
+        invalidIds,
     });
 });
 
 const markTask = asyncHandler(async (req, res) => {
-    const { id } = req.params;
 
-    if (!id || isNaN(id)) {
-        const err = new Error("Invalid task ID");
+    const { validIds, invalidIds } = req;
+
+    if (validIds.length === 0) {
+        const err = new Error("No valid IDs provided");
         err.status = 400;
         throw err;
     }
 
-    const updatedTask = await markTaskService(id);
+    const result = await markTaskService(validIds);
 
     res.status(200).json({
         success: true,
-        message: "Task marked as completed",
-        data: updatedTask,
+        message: "Mark operation completed",
+        updated: result.updated,
+        alreadyCompleted: result.alreadyCompleted,
+        notFound: result.notFound,
+        invalidIds,
     });
 });
 
 const editTask = asyncHandler(async (req, res) => {
-    let { id } = req.params;
-    let { title, description, category } = req.body;
+    const { tasks } = req.body;
 
-    if (!id || isNaN(id)) {
-        const err = new Error("Invalid task ID");
+    if (!Array.isArray(tasks)) {
+        const err = new Error("tasks must be an array");
         err.status = 400;
         throw err;
     }
 
-    if (
-        title === undefined ||
-        title === null ||
-        typeof title !== "string" ||
-        title.trim() === ""
-    ) {
-        const err = new Error("Title must be a non-empty string");
-        err.status = 400;
-        throw err;
-    }
+    const validTasks = [];
+    const invalidTasks = [];
 
-    if (
-        description !== undefined &&
-        typeof description !== "string"
-    ) {
-        const err = new Error("Description must be a string");
-        err.status = 400;
-        throw err;
-    }
+    tasks.forEach((task) => {
+        let { id, title, description, category } = task;
 
-    if (category === undefined || category === null || category === "") {
-        category = "other";
-    } else if (typeof category !== "string") {
-        const err = new Error("Category must be a string");
-        err.status = 400;
-        throw err;
-    }
+        if (typeof id !== "number") {
+            invalidTasks.push({ task, error: "Invalid ID" });
+            return;
+        }
 
-    const updatedTask = await editTaskService(id, {
-        title: title.trim(),
-        description: description || null,
-        category,
+        if (!title || typeof title !== "string" || title.trim() === "") {
+            invalidTasks.push({ task, error: "Invalid title" });
+            return;
+        }
+
+        if (description !== undefined && typeof description !== "string") {
+            invalidTasks.push({ task, error: "Invalid description" });
+            return;
+        }
+
+        if (!category) category = "other";
+        if (typeof category !== "string") {
+            invalidTasks.push({ task, error: "Invalid category" });
+            return;
+        }
+
+        validTasks.push({
+            id,
+            title: title.trim(),
+            description: description || null,
+            category,
+        });
     });
+
+    const result = await editTaskService(validTasks);
 
     res.status(200).json({
         success: true,
-        message: "Task updated successfully",
-        data: updatedTask,
+        message: "Edit operation completed",
+        updated: result.updated,
+        notFound: result.notFound,
+        invalidTasks,
     });
 });
 
-module.exports = {
-    addTasks,
-    getTasks,
-    deleteTask,
-    markTask,
-    editTask,
-};
+module.exports = { addTasks, getTasks, deleteTask, markTask, editTask };

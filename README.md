@@ -35,6 +35,7 @@ backend/
 ├── middlewares/
 │ ├── errorHandler.js
 │ └── validateTask.js
+│ └── validateIds.js
 ├── utils/
 │ └── asyncHandler.js
 ├── database/
@@ -48,6 +49,66 @@ backend/
 ├── server.js
 └── README.md
 ```
+
+---
+
+## 🗄️ Database Setup
+
+This project uses **PostgreSQL** for data persistence.
+
+To run this project locally, you need to create a database and a `tasks` table with the following schema:
+
+```sql
+CREATE TABLE tasks (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  completed BOOLEAN DEFAULT FALSE,
+  category VARCHAR(100) DEFAULT 'other',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### ⚙️ Steps to Setup Database
+
+1. Install PostgreSQL (if not already installed)
+
+2. Create a database:
+
+```sql
+CREATE DATABASE your_database_name;
+```
+
+3. Connect to your database and run the table creation query above
+
+4. Update your `.env` file with your database credentials:
+
+```env
+DB_USER=your_postgres_username
+DB_HOST=localhost
+DB_NAME=your_database_name
+DB_PASSWORD=your_database_password
+DB_PORT=5432
+```
+
+---
+
+### 📝 Notes
+
+* `title` → required field
+* `description` → optional
+* `completed` → defaults to `false`
+* `category` → defaults to `"other"`
+* `created_at` → automatically set when task is created
+
+---
+
+After completing these steps, your backend will be able to store and manage tasks properly.
+
+---
+
 
 ---
 
@@ -97,45 +158,160 @@ http://localhost:3000
 
 ## 📡 API Endpoints
 
-### Get All Tasks
+### 🔹 Get All Tasks
 
 ```
-GET /task/tasks
+GET /task
 ```
 
-### Create Task
+---
+
+### 🔹 Create Task
 
 ```
-POST /task/addtasks
+POST /task
 ```
 
-Body:
+**Body:**
 
-```
+```json
 {
-  "title": "Task title",
-  "description": "Optional",
-  "category": "Optional"
+  "title": "Learn Express",
+  "description": "Optional description",
+  "category": "work",
+  "completed": false
 }
 ```
 
-### Update Task
+👉 Notes:
+
+* `title` → required (string, not empty)
+* `description` → optional (string or null)
+* `category` → optional (default: `"other"`)
+* `completed` → optional (default: `false`)
+
+---
+
+### 🔹 Delete Multiple Tasks
 
 ```
-PUT /task/tasks/:id
+DELETE /task
 ```
 
-### Mark Task as Completed
+**Body:**
+
+```json
+{
+  "ids": [1, 2, 3]
+}
+```
+
+**Response Example:**
+
+```json
+{
+  "success": true,
+  "message": "Delete operation completed",
+  "deleted": [1, 2],
+  "notFound": [3],
+  "invalidIds": ["4", "abc", true]
+
+}
+```
+
+---
+
+### 🔹 Mark Tasks as Completed (Batch)
 
 ```
-PATCH /task/tasks/:id/complete
+PATCH /task/complete
 ```
 
-### Delete Task
+**Body:**
+
+```json
+{
+  "ids": [1, 2, 3]
+}
+```
+
+**Response Example:**
+
+```json
+{
+  "success": true,
+  "message": "Mark operation completed",
+  "updated": [1],
+  "alreadyCompleted": [2],
+  "notFound": [3],
+  "invalidIds": ["4", "abc", true]
+}
+```
+
+---
+
+### 🔹 Edit Multiple Tasks
 
 ```
-DELETE /task/tasks/:id
+PUT /task
 ```
+
+**Body:**
+
+```json
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Updated title",
+      "description": "Updated description",
+      "category": "personal"
+    },
+    {
+      "id": 2,
+      "title": "Another update"
+    }
+  ]
+}
+```
+
+**Response Example:**
+
+```json
+{
+  "success": true,
+  "message": "Edit operation completed",
+  "updated": [1],
+  "notFound": [2],
+  "invalidTasks": [
+    {
+      "task": { "id": "abc" },
+      "error": "Invalid ID"
+    }
+  ]
+}
+```
+
+---
+
+### 🔹 Error Response Format
+
+```json
+{
+  "success": false,
+  "message": "Error message here",
+  "stack": "Only visible in development"
+}
+```
+
+---
+
+### 🔹 Key Highlights
+
+* No `:id` in URL (uses request body instead)
+* Supports batch operations
+* Handles partial success (valid + invalid inputs together)
+* Consistent response structure across all APIs
 
 ---
 
