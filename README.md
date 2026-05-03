@@ -105,10 +105,6 @@ DB_PORT=5432
 
 ---
 
-After completing these steps, your backend will be able to store and manage tasks properly.
-
-
----
 
 ## ⚙️ Environment Variables
 
