@@ -322,6 +322,20 @@ PUT /task
 
 ---
 
+## 🧪 Testing the API
+
+A simple `test.js` script is included to demonstrate and verify all API endpoints with both valid and invalid inputs.  
+It serves as a quick way to test the project and as a reference for how to call the APIs.
+
+### ▶️ Run Tests
+
+Make sure the server is running (`npm start`), then run:
+
+```bash
+npm run test-api
+
+---
+
 ### 🔹 Key Highlights
 
 * No `:id` in URL (uses request body instead)
