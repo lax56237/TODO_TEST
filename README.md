@@ -181,12 +181,12 @@ POST /task
 
 * `title` → required (string, not empty)
 * `description` → optional (string or null)
-* `category` → optional (default: `"other"`)
-* `completed` → optional (default: `false`)
+* `category` → optional (string or null, default: `"other"`)
+* `completed` → optional (boolean, default: `false`)
 
 ---
 
-### 🔹 Delete Multiple Tasks
+### 🔹 Delete One or Multiple Tasks
 
 ```
 DELETE /task
@@ -244,7 +244,7 @@ PATCH /task/complete
 
 ---
 
-### 🔹 Edit Multiple Tasks
+### 🔹 Edit One or Multiple Tasks
 
 ```
 PUT /task
