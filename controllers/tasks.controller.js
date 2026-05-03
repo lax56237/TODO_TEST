@@ -5,8 +5,8 @@ const {
     markTaskService,
     editTaskService,
 } = require("../services/tasks.service");
-
 const asyncHandler = require("../utils/asyncHandler");
+
 
 const addTasks = asyncHandler(async (req, res) => {
     const task = await addTaskService(req.body);
@@ -92,7 +92,10 @@ const editTask = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    if (description !== undefined && typeof description !== "string") {
+    if (
+        description !== undefined &&
+        typeof description !== "string"
+    ) {
         const err = new Error("Description must be a string");
         err.status = 400;
         throw err;

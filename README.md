@@ -29,11 +29,22 @@ A RESTful API built with Node.js, Express, and PostgreSQL to manage tasks with p
 ```
 backend/
 ├── controllers/
+│ └── tasks.controller.js
 ├── services/
+│ └── tasks.service.js
 ├── middlewares/
+│ ├── errorHandler.js
+│ └── validateTask.js
 ├── utils/
-├── db.js
-├── router.js
+│ └── asyncHandler.js
+├── database/
+│ └── db.js
+├── routers/
+│ └── router.js
+├── .env
+├── .env.example
+├── .gitignore
+├── package.json
 ├── server.js
 └── README.md
 ```
@@ -51,11 +62,11 @@ FRONTEND_URL=http://localhost:5173
 NODE_ENV= development or production
 
 # postgers database
-USER=your postgers's username
-HOST=your postgers's host name
-DB=name of database
-PASSWORD=password of postgres
-PORT=port of postgres server
+DB_USER=your postgers's username
+DB_HOST=your postgers's host name
+DB_NAME=name of database
+DB_PASSWORD=password of postgres
+DB_PORT=port of postgres server
 ```
 
 ---

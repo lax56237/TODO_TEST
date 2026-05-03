@@ -2,8 +2,8 @@ require("dotenv").config()
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const router = require("./router")
-const pool = require("./db")
+const router = require("./routes/router")
+const pool = require("./database/db")
 const errorHandler = require("./middlewares/errorHandler")
 
 app.use(cors({

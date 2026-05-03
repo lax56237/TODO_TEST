@@ -1,7 +1,7 @@
 const express = require("express")
 const router = express.Router()
-const validateTask = require("./middlewares/validateTask");
-const { addTasks, getTasks, deleteTask, markTask, editTask } = require("./controllers/tasks.controller")
+const validateTask = require("../middlewares/validateTask");
+const { addTasks, getTasks, deleteTask, markTask, editTask } = require("../controllers/tasks.controller")
 
 
 router.get("/tasks", getTasks);

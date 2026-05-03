@@ -1,21 +1,16 @@
-const pool = require("../db");
+const pool = require("../database/db");
 
 const addTaskService = async ({ title, description, category, completed }) => {
     try {
-        const query = `
-      INSERT INTO tasks (title, description, category, completed)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *;
-    `;
-
-        const values = [
-            title.trim(),
-            description || null,
-            category || "other",
-            completed !== undefined ? completed : false,
-        ];
-
-        const result = await pool.query(query, values);
+        const result = await pool.query(
+            "INSERT INTO tasks (title, description, category, completed) VALUES ($1, $2, $3, $4) RETURNING *;",
+            [
+                title.trim(),
+                description || null,
+                category || "other",
+                completed !== undefined ? completed : false,
+            ]
+        );
 
         return result.rows[0];
     } catch (error) {
@@ -27,8 +22,9 @@ const addTaskService = async ({ title, description, category, completed }) => {
 
 const getTasksService = async () => {
     try {
-        const query = "SELECT * FROM tasks ORDER BY id ASC;";
-        const result = await pool.query(query);
+        const result = await pool.query(
+            "SELECT * FROM tasks ORDER BY id ASC;"
+        );
 
         return result.rows;
     } catch (error) {
@@ -51,7 +47,10 @@ const deleteTaskService = async (id) => {
             throw err;
         }
 
-        await pool.query("DELETE FROM tasks WHERE id = $1;", [id]);
+        await pool.query(
+            "DELETE FROM tasks WHERE id = $1;",
+            [id]
+        );
 
         return true;
     } catch (error) {
@@ -113,13 +112,13 @@ const editTaskService = async (id, { title, description, category }) => {
         }
 
         const result = await pool.query(
-            `UPDATE tasks
-       SET title = $1,
-           description = $2,
-           category = $3
-       WHERE id = $4
-       RETURNING *;`,
-            [title.trim(), description || null, category || "other", id]
+            "UPDATE tasks SET title = $1, description = $2, category = $3 WHERE id = $4 RETURNING *;",
+            [
+                title.trim(),
+                description || null,
+                category || "other",
+                id
+            ]
         );
 
         return result.rows[0];
