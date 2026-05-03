@@ -114,7 +114,7 @@ Create a `.env` file in the root:
 # main sever
 BACKEND_PORT=3000
 FRONTEND_URL=http://localhost:5173
-NODE_ENV= development or production
+NODE_ENV= development
 
 # postgers database
 DB_USER=your postgers's username
