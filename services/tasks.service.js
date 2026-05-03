@@ -115,8 +115,8 @@ async function editTaskService(tasks) {
         }
 
         await runQuery(
-            "UPDATE tasks SET title = $1, description = $2, category = $3 WHERE id = $4;",
-            [task.title, task.description, task.category, task.id],
+            "UPDATE tasks SET title = $1, description = $2, category = $3, completed = $4 WHERE id = $4;",
+            [task.title, task.description, task.category, task.id, task.completed],
             "Database error while updating task"
         );
 

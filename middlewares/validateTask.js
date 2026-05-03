@@ -1,5 +1,5 @@
 function validateTask(req, res, next) {
-    let { title, description, category, completed } = req.body;
+    let { title, description, category } = req.body;
 
     if (!title || typeof title !== "string" || title.trim() === "") {
         const error = new Error("Title must be a non-empty string");
@@ -21,19 +21,11 @@ function validateTask(req, res, next) {
         return next(error);
     }
 
-    if (completed === undefined) {
-        completed = false;
-    } else if (typeof completed !== "boolean") {
-        const error = new Error("Completed must be true or false");
-        error.status = 400;
-        return next(error);
-    }
-
     req.body = {
         title: title.trim(),
         description: description || null,
         category,
-        completed,
+        completed: false,
     };
 
     next();

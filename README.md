@@ -173,7 +173,6 @@ POST /task
   "title": "Learn Express",
   "description": "Optional description",
   "category": "work",
-  "completed": false
 }
 ```
 
@@ -182,7 +181,6 @@ POST /task
 * `title` → required (string, not empty)
 * `description` → optional (string or null)
 * `category` → optional (string or null, default: `"other"`)
-* `completed` → optional (boolean, default: `false`)
 
 ---
 
@@ -259,7 +257,8 @@ PUT /task
       "id": 1,
       "title": "Updated title",
       "description": "Updated description",
-      "category": "personal"
+      "category": "personal",
+      "completed" : true
     },
     {
       "id": 2,

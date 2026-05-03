@@ -84,7 +84,7 @@ const editTask = asyncHandler(async (req, res) => {
     const invalidTasks = [];
 
     tasks.forEach((task) => {
-        let { id, title, description, category } = task;
+        let { id, title, description, category, completed } = task;
 
         if (typeof id !== "number") {
             invalidTasks.push({ task, error: "Invalid ID" });
@@ -107,11 +107,17 @@ const editTask = asyncHandler(async (req, res) => {
             return;
         }
 
+        if (completed && typeof completed !== Boolean) {
+            invalidTasks.push({ task, error: "Invalid completed status" });
+            return;
+        }
+
         validTasks.push({
             id,
             title: title.trim(),
             description: description || null,
             category,
+            completed
         });
     });
 
