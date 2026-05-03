@@ -157,7 +157,29 @@ http://localhost:3000
 ```
 GET /task
 ```
+**Output:**
 
+
+```json
+{
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Task 1",
+      "description": "description",
+      "category": "personal",
+      "completed" : true
+    },
+    {
+      "id": 2,
+      "title": "Another update",
+      "description": "description",
+      "category": "other",
+      "completed" : false
+    }
+  ]
+}
+```
 ---
 
 ### 🔹 Create Task
@@ -181,6 +203,7 @@ POST /task
 * `title` → required (string, not empty)
 * `description` → optional (string or null)
 * `category` → optional (string or null, default: `"other"`)
+* `completed` → you don’t include this field when creating a task; the server automatically sets it to false by default
 
 ---
 
